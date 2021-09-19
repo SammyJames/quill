@@ -143,10 +143,13 @@ add_library(${TARGET_NAME} "")
 add_library(${TARGET_NAME}::${TARGET_NAME} ALIAS ${TARGET_NAME})
 
 if (QUILL_NO_EXCEPTIONS)
-    if (NOT MSVC)
-        target_compile_options(${TARGET_NAME} PRIVATE -fno-exceptions)
-    endif ()
-endif ()
+    target_compile_options(${TARGET_NAME} PRIVATE 
+        $<$<AND:$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>,$<NOT:$<STREQUAL:"${CMAKE_CXX_SIMULATE_ID}","MSVC">>>:
+            -fno-exceptions>
+        $<$<OR:$<CXX_COMPILER_ID:MSVC>,$<STREQUAL:"${CMAKE_CXX_SIMULATE_ID}","MSVC">>:
+            /EHsc->)
+endif()
+
 
 # Add target sources
 target_sources(${TARGET_NAME} PRIVATE ${SOURCE_FILES} ${HEADER_FILES})
@@ -186,13 +189,13 @@ target_include_directories(${TARGET_NAME}
 
 # Compiler options
 target_compile_options(${TARGET_NAME} PRIVATE
-        $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-        -Wall -Wextra -Wconversion -pedantic -Wfatal-errors -Wno-unused-private-field -Wno-gnu-zero-variadic-macro-arguments>
-        $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4324>)
+        $<$<AND:$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>,$<NOT:$<STREQUAL:"${CMAKE_CXX_SIMULATE_ID}","MSVC">>>:
+            -Wall -Wextra -Wconversion -pedantic -Wfatal-errors -Wno-unused-private-field -Wno-gnu-zero-variadic-macro-arguments>
+        $<$<OR:$<CXX_COMPILER_ID:MSVC>,$<STREQUAL:"${CMAKE_CXX_SIMULATE_ID}","MSVC">>:
+            /W4 /wd4324>)
 
 # TODO:: use MultiByteToWideChar() and WideCharToMultiByte() from <Windows.h> instead of covecvt
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    target_compile_options(${TARGET_NAME} PRIVATE /WX /EHsc)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
     target_compile_definitions(${TARGET_NAME} PRIVATE _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
 endif ()
 
