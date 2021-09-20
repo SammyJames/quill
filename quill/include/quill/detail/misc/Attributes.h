@@ -54,12 +54,8 @@
 /**
  * Portable no discard warnings
  */
-#if QUILL_HAS_CPP_ATTRIBUTE(nodiscard)
-  #if defined(__clang__) && !defined(QUILL_HAS_CPP_17)
-    #define QUILL_NODISCARD
-  #else
+#if QUILL_MODERN_LANG_FEATURES
     #define QUILL_NODISCARD [[nodiscard]]
-  #endif
 #elif QUILL_HAS_CPP_ATTRIBUTE(gnu::warn_unused_result)
   #define QUILL_NODISCARD [[gnu::warn_unused_result]]
 #else
@@ -69,7 +65,7 @@
 /**
  * Portable maybe_unused
  */
-#if QUILL_HAS_CPP_ATTRIBUTE(maybe_unused) && (defined(_HAS_CXX17) && _HAS_CXX17 == 1)
+#if QUILL_MODERN_LANG_FEATURES
   #define QUILL_MAYBE_UNUSED [[maybe_unused]]
 #elif QUILL_HAS_ATTRIBUTE(__unused__) || defined(__GNUC__)
   #define QUILL_MAYBE_UNUSED __attribute__((__unused__))
