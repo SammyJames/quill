@@ -70,7 +70,7 @@ private:
     /** members */
     bounded_spsc_queue_t bounded_spsc_queue;
     alignas(CACHELINE_SIZE) std::atomic<node*> next{nullptr};
-    char _pad1[detail::CACHELINE_SIZE - sizeof(std::atomic<node*>)] = "\0";
+    QUILL_MAYBE_UNUSED char _pad1[detail::CACHELINE_SIZE - sizeof(std::atomic<node*>)] = "\0";
   };
 
 public:
@@ -195,7 +195,7 @@ private:
   /** Modified by either the producer or consumer but never both */
   alignas(CACHELINE_SIZE) node* _producer{nullptr};
   alignas(CACHELINE_SIZE) node* _consumer{nullptr};
-  char _pad0[detail::CACHELINE_SIZE - sizeof(node*)] = "\0";
+  QUILL_MAYBE_UNUSED char _pad0[detail::CACHELINE_SIZE - sizeof(node*)] = "\0";
 };
 
 } // namespace detail

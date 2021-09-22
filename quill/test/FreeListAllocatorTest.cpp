@@ -346,9 +346,9 @@ TEST_CASE("allocate_deallocate_from_free_list_random_initial_capacity_ctor")
       // we will accumulate all sizes and to each size we will add the size of the block header
       size_t const total_allocated_memory =
         std::accumulate(allocated_sizes.begin(), allocated_sizes.end(), 0,
-                        [&fla](size_t a, size_t b) { return a + b; });
+                        [](size_t a, size_t b) { return a + b; });
 
-      size_t const total_allocated_memory_with_header_size =
+      QUILL_MAYBE_UNUSED size_t const total_allocated_memory_with_header_size =
         std::accumulate(allocated_sizes.begin(), allocated_sizes.end(), 0,
                         [&fla](size_t a, size_t b) { return a + b + fla.size_of_header(); });
 
@@ -360,7 +360,7 @@ TEST_CASE("allocate_deallocate_from_free_list_random_initial_capacity_ctor")
       REQUIRE_EQ(total_allocated_blocks, 1);
 
       // Check all allocated blocks, we expect it all to be merged back to 1
-      size_t b_size = blocks.size();
+      QUILL_MAYBE_UNUSED size_t b_size = blocks.size();
 
       // Check all used blocks
       uint64_t used_size = 0;
@@ -1106,7 +1106,7 @@ TEST_CASE("block_too_small_to_split")
 
   // Here we requested 32 bytes but it was not possible to split the block that previously
   // was 64 + BlockHeader so we return a bigger one instead of 64 bytes again
-  void* p1 = fla.allocate(32);
+  QUILL_MAYBE_UNUSED void* p1 = fla.allocate(32);
 
   // Check allocator internal state
   {
@@ -1130,7 +1130,7 @@ TEST_CASE("block_too_small_to_split")
     REQUIRE_EQ(block_used, 1);
   }
 
-  void* p2 = fla.allocate(32);
+  QUILL_MAYBE_UNUSED void* p2 = fla.allocate(32);
 
   // Check allocator internal state
   {

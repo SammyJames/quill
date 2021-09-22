@@ -178,9 +178,9 @@ private:
       // lambda to unpack the tuple args stored in the LogEvent (the arguments that were passed by
       // the user) We also capture all additional information we need to create the log message
       auto forward_tuple_args_to_formatter = [this, &log_record_metadata, log_record_timestamp, thread_id,
-                                              thread_name, handler](auto const&... tuple_args) {
-        handler->formatter().format(log_record_timestamp, thread_id, thread_name,
-                                    _logger_details->name(), log_record_metadata, tuple_args...);
+                                              thread_name, handler]<typename... T>(T&&... tuple_args) {
+        handler->formatter().format(log_record_timestamp, thread_id, thread_name, _logger_details->name(),
+                                    log_record_metadata, std::forward<T>(tuple_args)...);
       };
 
       // formatted record by the formatter

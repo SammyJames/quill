@@ -196,7 +196,10 @@ target_compile_options(${TARGET_NAME} PRIVATE
 
 # TODO:: use MultiByteToWideChar() and WideCharToMultiByte() from <Windows.h> instead of covecvt
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
-    target_compile_definitions(${TARGET_NAME} PRIVATE _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING)
+    target_compile_definitions(${TARGET_NAME} PRIVATE 
+        _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 
+        _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS=1
+        _CRT_NONSTDC_NO_WARNINGS=1)
 endif ()
 
 target_compile_definitions(${TARGET_NAME} PRIVATE 

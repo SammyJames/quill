@@ -157,7 +157,7 @@ private:
 
 #if defined(QUILL_USE_BOUNDED_QUEUE)
   alignas(CACHELINE_SIZE) std::atomic<size_t> _dropped_message_counter{0};
-  char _pad0[detail::CACHELINE_SIZE - sizeof(std::atomic<size_t>)] = "\0";
+  QUILL_MAYBE_UNUSED char _pad0[detail::CACHELINE_SIZE - sizeof(std::atomic<size_t>)] = "\0";
 #endif
 };
 } // namespace detail

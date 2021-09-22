@@ -2826,29 +2826,25 @@ template <typename Char> struct basic_runtime { basic_string_view<Char> str; };
 
 template <typename Char, typename... Args> class basic_format_string {
  private:
-  basic_string_view<Char> str_;
+  const basic_string_view<Char> str_;
 
  public:
   template <typename S,
             FMT_ENABLE_IF(
                 std::is_convertible<const S&, basic_string_view<Char>>::value)>
-  FMT_CONSTEVAL basic_format_string(const S& s) : str_(s) {
+  constexpr basic_format_string(const S& s) : str_(s) {
     static_assert(
         detail::count<
             (std::is_base_of<detail::view, remove_reference_t<Args>>::value &&
              std::is_reference<Args>::value)...>() == 0,
         "passing views as lvalues is disallowed");
-#ifdef FMT_HAS_CONSTEVAL
     if constexpr (detail::count_named_args<Args...>() == 0) {
       using checker = detail::format_string_checker<Char, detail::error_handler,
                                                     remove_cvref_t<Args>...>;
       detail::parse_format_string<true>(str_, checker(s, {}));
     }
-#else
-    detail::check_format_string<Args...>(s);
-#endif
   }
-  basic_format_string(basic_runtime<Char> r) : str_(r.str) {}
+  constexpr basic_format_string(basic_runtime<Char> r) : str_(r.str) {}
 
   FMT_INLINE operator basic_string_view<Char>() const { return str_; }
 };

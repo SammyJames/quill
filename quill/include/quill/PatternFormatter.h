@@ -119,9 +119,10 @@ private:
     {
       // lambda expand the stored tuple arguments
       auto format_buffer = [this, &memory_buffer, timestamp, thread_id, thread_name, logger_name,
-                            logline_info](auto... tuple_args) {
+                            &logline_info]<typename... T>(T&&... tuple_args) constexpr {
         fmt::format_to(std::back_inserter(memory_buffer), _fmt_pattern.data(),
-                       tuple_args(timestamp, thread_id, thread_name, logger_name, logline_info)...);
+                       std::forward<T>(tuple_args)(timestamp, thread_id, thread_name,
+                                                            logger_name, logline_info)...);
       };
 
       invoke_hpp::apply(format_buffer, _tuple_of_callbacks);
@@ -129,7 +130,7 @@ private:
 
   private:
     TTuple _tuple_of_callbacks;
-    std::string _fmt_pattern;
+    const std::string _fmt_pattern;
   };
 
   /** Public classes **/
@@ -217,7 +218,7 @@ public:
   template <typename... Args>
   typename std::enable_if_t<!detail::any_is_same<std::wstring, void, Args...>::value, void> format(
     std::chrono::nanoseconds timestamp, char const* thread_id, char const* thread_name,
-    char const* logger_name, LogMacroMetadata const& logline_info, Args const&... args) const;
+    char const* logger_name, LogMacroMetadata const& logline_info, Args&&... args) const;
 
   /**
    * Formats the given LogRecord after converting the wide characters to UTF-8
@@ -233,7 +234,7 @@ public:
   template <typename... Args>
   typename std::enable_if_t<detail::any_is_same<std::wstring, void, Args...>::value, void> format(
     std::chrono::nanoseconds timestamp, char const* thread_id, char const* thread_name,
-    char const* logger_name, LogMacroMetadata const& logline_info, Args const&... args) const;
+    char const* logger_name, LogMacroMetadata const& logline_info, Args&&... args) const;
 #endif
 
   inline void format(std::chrono::nanoseconds timestamp, char const* thread_id, char const* thread_name,
@@ -407,7 +408,7 @@ void PatternFormatter::format(std::chrono::nanoseconds timestamp, const char* th
 template <typename... Args>
 typename std::enable_if_t<!detail::any_is_same<std::wstring, void, Args...>::value, void> PatternFormatter::format(
   std::chrono::nanoseconds timestamp, const char* thread_id, const char* thread_name,
-  char const* logger_name, LogMacroMetadata const& logline_info, Args const&... args) const
+  char const* logger_name, LogMacroMetadata const& logline_info, Args&&... args) const
 {
   // clear out existing buffer
   _formatted_log_record.clear();
@@ -417,7 +418,7 @@ typename std::enable_if_t<!detail::any_is_same<std::wstring, void, Args...>::val
                                            logger_name, logline_info);
 
   // Format the user requested string
-  fmt::format_to(std::back_inserter(_formatted_log_record), logline_info.message_format(), args...);
+  fmt::format_to(std::back_inserter(_formatted_log_record), logline_info.message_format(), std::forward<Args>(args)...);
 
   // Format part 3 of the pattern
   _pattern_formatter_helper_part_3->format(_formatted_log_record, timestamp, thread_id, thread_name,
@@ -431,7 +432,7 @@ typename std::enable_if_t<!detail::any_is_same<std::wstring, void, Args...>::val
 template <typename... Args>
 typename std::enable_if_t<detail::any_is_same<std::wstring, void, Args...>::value, void> PatternFormatter::format(
   std::chrono::nanoseconds timestamp, char const* thread_id, const char* thread_name,
-  char const* logger_name, LogMacroMetadata const& logline_info, Args const&... args) const
+  char const* logger_name, LogMacroMetadata const& logline_info, Args&&... args) const
 {
   // clear out existing buffer
   _formatted_log_record.clear();
@@ -445,7 +446,7 @@ typename std::enable_if_t<detail::any_is_same<std::wstring, void, Args...>::valu
 
   // Format the whole message to a wide buffer
   _w_memory_buffer.clear();
-  fmt::format_to(std::back_inserter(_w_memory_buffer), w_message_format, args...);
+  fmt::format_to(std::back_inserter(_w_memory_buffer), w_message_format, std::forward<Args>(args)...);
 
   // Convert the results to UTF-8
   detail::wstring_to_utf8(_w_memory_buffer, _formatted_log_record);

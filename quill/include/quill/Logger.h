@@ -146,7 +146,7 @@ public:
       // We have no space to write to the fast queue, it is still better to try to push to the event
       // queue first before re-allocating
       constexpr bool try_fast_queue{false};
-      log<try_fast_queue, IsBackTraceLogRecord, TLogMacroMetadata>(format_string, fmt_args...);
+      log<try_fast_queue, IsBackTraceLogRecord, TLogMacroMetadata>(format_string, std::forward<FmtArgs>(fmt_args)...);
       return;
     }
     // we have enough space in this buffer and we will write to the buffer

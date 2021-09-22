@@ -195,7 +195,7 @@ protected:
    * the next bytes from. This value is only updated by the consumer.
    */
   alignas(CACHELINE_SIZE) std::atomic<unsigned char*> _consumer_pos;
-  char _pad0[CACHELINE_SIZE - sizeof(std::atomic<unsigned char*>)] = "\0";
+  QUILL_MAYBE_UNUSED char _pad0[CACHELINE_SIZE - sizeof(std::atomic<unsigned char*>)] = "\0";
 };
 } // namespace detail
 } // namespace quill
